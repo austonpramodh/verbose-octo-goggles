@@ -1,4 +1,6 @@
+from queue import PriorityQueue
 from adjListGraph import AdjListGraph
+from edgeWeight import EdgeCost
 
 UNVISITED = 0
 VISITED = 1
@@ -119,7 +121,7 @@ def strongConnectivity(g):
     comps = []
     return (lowLinkArr,roots,comps)
 
-def shortestPathDijkstra(g,sourceVertex):
+def shortestPathDijkstra(graph,sourceVertex = 0):
     '''Returns an array of shortest path lengths in directed graph g from
         sourceVertex to every other vertex in graph using Dijkstra's algorithm
         Assume EdgeCost objects are used for weights and they have positive values;
@@ -127,6 +129,42 @@ def shortestPathDijkstra(g,sourceVertex):
         minimum of 2 path lengths (this is consistent with semi-ring ops!!)
         See the example in BFS function
     '''
+    D = {v: EdgeCost(float('inf')) for v in range(graph.numVertices())}
+    D[sourceVertex] = EdgeCost(float(0))
+
+    # pq = PriorityQueue()
+    # pq.put((EdgeCost(float(0)), sourceVertex))
+    pq = []
+    pq.append((EdgeCost(float(0)), sourceVertex))
+
+    # while not pq.empty():
+    while len(pq) > 0:
+        # (dist, current_vertex) = pq.get()
+        (dist, current_vertex) = pq.pop(0)
+        graph.setMark(current_vertex, VISITED)
+
+        edges = graph.outgoingEdges(current_vertex)
+        for edge in edges:
+            neighbor = edge.end
+            distance = edge.weight
+            # If not visited
+            if graph.getMark(neighbor) != VISITED:
+                old_cost = D[neighbor]
+                # Using * as the EdgeCost class has operator overloading for addition
+                new_cost = D[current_vertex] * distance
+                if float(new_cost.w) < float(old_cost.w):
+                    # pq.put((new_cost, neighbor))
+                    pq.append((new_cost, neighbor))
+                    # TODO: Run pq sorting with lambda
+                    pq.sort(key=lambda x: x[0].w)
+                    D[neighbor] = new_cost
+
+    # Manipyulating the return value for desired data structure
+    shortestPathLengths = [0 for v in range(graph.numVertices())]
+    for key in D:
+        shortestPathLengths[key] = D[key].w
+
+    return shortestPathLengths
 
 def minCostSpanningTreePrim(g,sourceVertex):
     '''Returns minimum cost spanning tree of a connected undirected graph using Prim's
