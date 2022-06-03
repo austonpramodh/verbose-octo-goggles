@@ -178,12 +178,10 @@ def minCostSpanningTreePrim(g,sourceVertex):
     '''
     pass
 
-def allPairPathWarshallFloyd(graph:Graph):
-    '''Returns the nxn matrix of all pair sum of path products using Floyd-Warshall
-       algorithm. You should assume that all edges have abstract GraphEdgeWeight instances
-       Use closure property provided in GraphEdgeWeight
-    '''
-    # Prepare the matrix for the algorthm
+
+# util
+
+def adjListGraphToMtx(graph:Graph, defaultVal = float("inf")):
     # Generate a weight matrix from the graph
     numVertex = graph.numVertices()
     # mtx = [[float("inf") for i in range(0, numVertex)] for i in range(0, numVertex)]
@@ -193,7 +191,7 @@ def allPairPathWarshallFloyd(graph:Graph):
             if row == col:
                 mtx[row].append(0)
             else:
-                mtx[row].append(float("inf"))
+                mtx[row].append(defaultVal)
     # Get the verteces
     for current_vertex in range(0, numVertex):
         # Get the outgoing edge for this specific vertex
@@ -205,7 +203,15 @@ def allPairPathWarshallFloyd(graph:Graph):
             weight = edge.weight
             mtx[start][end] = weight.w
             print(f"start=> {start} end=> {end}, weight=>{weight}")
-    
+    return mtx
+def allPairPathWarshallFloyd(graph:Graph):
+    '''Returns the nxn matrix of all pair sum of path products using Floyd-Warshall
+       algorithm. You should assume that all edges have abstract GraphEdgeWeight instances
+       Use closure property provided in GraphEdgeWeight
+    '''
+    # Prepare the matrix for the algorthm
+    numVertex = graph.numVertices()
+    mtx = adjListGraphToMtx(graph)
     # Run the floydWarshall algorthm on the prepared matrix
     distMtx = list(map(lambda i: list(map(lambda j: j, i)), mtx))
  
@@ -213,6 +219,7 @@ def allPairPathWarshallFloyd(graph:Graph):
          for i in range(numVertex):
             for j in range(numVertex):
                 distMtx[i][j] = min(distMtx[i][j],
-                                 distMtx[i][k] + distMtx[k][j])
+                # using * instead of + due to the operator overloading on the EdgeCost class
+                                 distMtx[i][k] * distMtx[k][j])
     return distMtx
  
