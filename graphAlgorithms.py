@@ -168,7 +168,8 @@ def shortestPathDijkstra(graph,sourceVertex = 0):
 
     return shortestPathLengths
 
-def minCostSpanningTreePrim(g,sourceVertex):
+
+def minCostSpanningTreePrim(graph: Graph,sourceVertex = 0):
     '''Returns minimum cost spanning tree of a connected undirected graph using Prim's
        algorithm starting from sourceVertex. The tree should be returned
        as AdjListGrap instance (undirected).
@@ -176,8 +177,34 @@ def minCostSpanningTreePrim(g,sourceVertex):
        also use * operation for addition of edge weights and + operation for
        minimum edge weight
     '''
-    pass
+    mtx = adjListGraphToMtx(graph, 0)
+    numVertices = graph.numVertices()
+    INF = 9999999
+    visited =  [0 for i in range(numVertices)]
+    no_edge = 0
+    visited[sourceVertex] = True
 
+    resultingAdjListGraph = AdjListGraph(numVertices, graph.isDirected(), graph.edgeWtType)
+
+    while (no_edge < numVertices - 1):
+        minimum = EdgeCost(INF)
+        x = 0
+        y = 0
+        for i in range(numVertices):
+            if visited[i]:
+                for j in range(numVertices):
+                    if ((not visited[j]) and mtx[i][j]):
+                        # The comparison operator overloading is not implemented in EdgeCost, therefore we 
+                        # will need to access the "w"
+                        if minimum.w > mtx[i][j].w:
+                            minimum = mtx[i][j]
+                            x = i
+                            y = j
+        resultingAdjListGraph.addEdge(x, y, mtx[x][y])
+        visited[y] = True
+        no_edge += 1
+
+    return resultingAdjListGraph
 
 # util
 
@@ -197,13 +224,12 @@ def adjListGraphToMtx(graph:Graph, defaultVal = float("inf")):
         # Get the outgoing edge for this specific vertex
         edges = graph.outgoingEdges(current_vertex)
         for edge in edges:
-            print(edge, current_vertex)
             start = current_vertex
             end  = edge.end
             weight = edge.weight
-            mtx[start][end] = weight.w
-            print(f"start=> {start} end=> {end}, weight=>{weight}")
+            mtx[start][end] = weight
     return mtx
+
 def allPairPathWarshallFloyd(graph:Graph):
     '''Returns the nxn matrix of all pair sum of path products using Floyd-Warshall
        algorithm. You should assume that all edges have abstract GraphEdgeWeight instances
