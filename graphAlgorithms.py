@@ -80,6 +80,32 @@ def biconnectivity(g):
     comps = []
     return (lowArr,sepVertices,comps)
 
+# TODO: modified code here----
+def dfsFindLowLink(graph, vertex = 0, lowLinkArr = [], prevVertex = 0):
+    '''Traverse graph starting from vertex v using DFS'''
+    '''Marks indicate DFS number of vertices'''
+
+    if len(lowLinkArr) != graph.numVertices():
+        lowLinkArr = [99999 for i in range(graph.numVertices())]
+
+    graph.setMark(vertex,VISITED)
+    edges = graph.outgoingEdges(vertex)
+    for edge in edges:
+        endVertex = edge.end
+        print(f'start: {edge.start}, end: {edge.end}')
+        print(f"prevVertex={prevVertex} lowLinkArr[vertex]={lowLinkArr[vertex]}, edge.end={edge.end}")
+
+        lowLinkArr[vertex] = min(lowLinkArr[vertex],vertex, endVertex)
+
+        # Already visited
+        if graph.getMark(endVertex) != UNVISITED:
+            continue
+
+        dfsFindLowLink(graph, endVertex, lowLinkArr)
+
+    return lowLinkArr
+# TODO: modified code here----
+
 def strongConnectivity(g):
     '''Given a directed graph g, returns a tuple consisting of
        (i) an array of LOWLINK values computed in the DFS,
@@ -87,9 +113,10 @@ def strongConnectivity(g):
        (iii) a list of biconnected components each of which is expressed as
            a list of edges
     '''
-    lowLinkArr = [0 for i in range(g.numVertices())]
+    lowLinkArr = dfsFindLowLink(g)
+    
     roots = []
-    comps = []     
+    comps = []
     return (lowLinkArr,roots,comps)
 
 def shortestPathDijkstra(g,sourceVertex):
