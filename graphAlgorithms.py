@@ -1,4 +1,6 @@
 from queue import PriorityQueue
+import sys
+from abstractGraph import Graph
 from adjListGraph import AdjListGraph
 from edgeWeight import EdgeCost
 
@@ -174,13 +176,43 @@ def minCostSpanningTreePrim(g,sourceVertex):
        also use * operation for addition of edge weights and + operation for
        minimum edge weight
     '''
+    pass
 
-def allPairPathWarshallFloyd(g):
+def allPairPathWarshallFloyd(graph:Graph):
     '''Returns the nxn matrix of all pair sum of path products using Floyd-Warshall
        algorithm. You should assume that all edges have abstract GraphEdgeWeight instances
        Use closure property provided in GraphEdgeWeight
     '''
-            
+    # Prepare the matrix for the algorthm
+    # Generate a weight matrix from the graph
+    numVertex = graph.numVertices()
+    # mtx = [[float("inf") for i in range(0, numVertex)] for i in range(0, numVertex)]
+    mtx = [[] for i in range(0, numVertex)]
+    for row in range(0, numVertex):
+        for col in range(0, numVertex):
+            if row == col:
+                mtx[row].append(0)
+            else:
+                mtx[row].append(float("inf"))
+    # Get the verteces
+    for current_vertex in range(0, numVertex):
+        # Get the outgoing edge for this specific vertex
+        edges = graph.outgoingEdges(current_vertex)
+        for edge in edges:
+            print(edge, current_vertex)
+            start = current_vertex
+            end  = edge.end
+            weight = edge.weight
+            mtx[start][end] = weight.w
+            print(f"start=> {start} end=> {end}, weight=>{weight}")
     
-
-
+    # Run the floydWarshall algorthm on the prepared matrix
+    distMtx = list(map(lambda i: list(map(lambda j: j, i)), mtx))
+ 
+    for k in range(numVertex):
+         for i in range(numVertex):
+            for j in range(numVertex):
+                distMtx[i][j] = min(distMtx[i][j],
+                                 distMtx[i][k] + distMtx[k][j])
+    return distMtx
+ 
