@@ -108,7 +108,52 @@ def dfsFindLowLink(graph, vertex = 0, lowLinkArr = [], prevVertex = 0):
         dfsFindLowLink(graph, endVertex, lowLinkArr)
 
     return lowLinkArr
-# TODO: modified code here----
+
+def strongConnectivityComponents(graph: AdjListGraph):
+  numVertices = graph.numVertices()
+  disc = [-1] * (numVertices)
+  low = [-1] * (numVertices)
+  stackMember = [False] * (numVertices)
+  st =[]
+  
+  result = []
+
+  def SCCUtil(graph:AdjListGraph, vertex, low, disc, stackMember, st, time = 0):
+
+    disc[vertex] = time
+    low[vertex] = time
+    time += 1
+    stackMember[vertex] = True
+    st.append(vertex)
+
+    for edge in graph.outgoingEdges(vertex):
+      current_vertex = edge.end
+      if disc[current_vertex] == -1 :
+      
+        SCCUtil(graph, current_vertex, low, disc, stackMember, st, time)
+
+        low[vertex] = min(low[vertex], low[current_vertex])
+            
+      elif stackMember[current_vertex] == True:
+        low[vertex] = min(low[vertex], disc[current_vertex])
+
+    w = -1
+    if low[vertex] == disc[vertex]:
+      result.append([])
+      while w != vertex:
+        w = st.pop()
+        print (w, end=" ")
+        result[len(result)-1].append(w)
+        stackMember[w] = False
+        
+      print()
+      
+  
+  for i in range(numVertices):
+    if disc[i] == -1:
+      SCCUtil(graph, i, low, disc, stackMember, st)
+
+  return result
 
 def strongConnectivity(g):
     '''Given a directed graph g, returns a tuple consisting of
@@ -118,9 +163,10 @@ def strongConnectivity(g):
            a list of edges
     '''
     lowLinkArr = dfsFindLowLink(g)
-    
-    roots = []
-    comps = []
+    sccComponents = strongConnectivityComponents(g)
+
+    roots = [sccComponent[0] for sccComponent in sccComponents]
+    comps = sccComponents
     return (lowLinkArr,roots,comps)
 
 def shortestPathDijkstra(graph,sourceVertex = 0):
